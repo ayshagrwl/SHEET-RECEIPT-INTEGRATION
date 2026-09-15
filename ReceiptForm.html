@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <base target="_top">
+
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: #202124;
+      margin: 0;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 21px;
+    }
+
+    .info {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 7px 0;
+      font-size: 13px;
+    }
+
+    .label {
+      color: #666;
+    }
+
+    .value {
+      font-weight: bold;
+      text-align: right;
+      max-width: 250px;
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid #ddd;
+      margin: 18px 0;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 13px;
+      margin-bottom: 5px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #4285f4;
+    }
+
+    textarea {
+      height: 65px;
+      resize: none;
+    }
+
+    .payment-box {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    .payment-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .payment-row label {
+      width: 75px;
+      margin: 0;
+    }
+
+    .payment-row input {
+      flex: 1;
+    }
+
+    .summary {
+      background: #e8f0fe;
+      padding: 13px;
+      border-radius: 8px;
+      margin-top: 18px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 13px;
+    }
+
+    .summary-total {
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 18px;
+      border: none;
+      border-radius: 7px;
+      background: #188038;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: #137333;
+    }
+
+    .button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .error {
+      color: #d93025;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 10px;
+      color: #666;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+<h2>Record Receipt</h2>
+
+
+<div class="info">
+
+  <div class="info-row">
+    <span class="label">Invoice</span>
+    <span class="value"><?= invoice ?></span>
+  </div>
+
+  <div class="info-row">
+    <span class="label">Customer</span>
+    <span class="value"><?= customer ?></span>
+  </div>
+
+  <div class="info-row">
+    <span class="label">Invoice Amount</span>
+    <span class="value"><?= amount ?></span>
+  </div>
+
+  <div class="info-row">
+    <span class="label">Current Paid</span>
+    <span class="value"><?= paid ?></span>
+  </div>
+
+  <div class="info-row">
+    <span class="label">Outstanding</span>
+    <span class="value"><?= outstanding ?></span>
+  </div>
+
+</div>
+
+
+<label>Receipt Date</label>
+
+<input
+  type="date"
+  id="date"
+>
+
+
+<hr>
+
+
+<div class="payment-box">
+
+  <div class="payment-row">
+
+    <label>Cash</label>
+
+    <input
+      type="number"
+      id="cash"
+      min="0"
+      step="0.01"
+      placeholder="0"
+      oninput="calculate()"
+    >
+
+  </div>
+
+
+  <div class="payment-row">
+
+    <label>Bank</label>
+
+    <input
+      type="number"
+      id="bank"
+      min="0"
+      step="0.01"
+      placeholder="0"
+      oninput="calculate()"
+    >
+
+  </div>
+
+
+  <div class="payment-row">
+
+    <label>Discount</label>
+
+    <input
+      type="number"
+      id="discount"
+      min="0"
+      step="0.01"
+      placeholder="0"
+      oninput="calculate()"
+    >
+
+  </div>
+
+</div>
+
+
+<div class="summary">
+
+  <div class="summary-row">
+
+    <span>Total Payment</span>
+
+    <span id="totalPayment">
+      ₹0
+    </span>
+
+  </div>
+
+
+  <div class="summary-row">
+
+    <span>Discount</span>
+
+    <span id="totalDiscount">
+      ₹0
+    </span>
+
+  </div>
+
+
+  <div class="summary-row summary-total">
+
+    <span>Total Adjustment</span>
+
+    <span id="totalAdjustment">
+      ₹0
+    </span>
+
+  </div>
+
+</div>
+
+
+<label>Receipt Number</label>
+
+<input
+  type="text"
+  id="receiptNo"
+  placeholder="e.g. R4001"
+>
+
+
+<label>Remarks</label>
+
+<textarea
+  id="remarks"
+  placeholder="Enter remarks..."
+></textarea>
+
+
+<div
+  id="error"
+  class="error"
+></div>
+
+
+<button
+  id="saveButton"
+  class="button"
+  onclick="saveReceipt()"
+>
+  SAVE RECEIPT
+</button>
+
+
+<div
+  id="loading"
+  class="loading"
+>
+  Saving receipt...
+</div>
+
+
+<script>
+
+
+// Set today's date automatically
+window.onload = function() {
+
+  const today =
+    new Date();
+
+  const yyyy =
+    today.getFullYear();
+
+  const mm =
+    String(today.getMonth() + 1)
+      .padStart(2, '0');
+
+  const dd =
+    String(today.getDate())
+      .padStart(2, '0');
+
+  document.getElementById('date').value =
+    yyyy + '-' + mm + '-' + dd;
+};
+
+
+function getNumber(id) {
+
+  return Number(
+    document.getElementById(id).value
+  ) || 0;
+}
+
+
+function calculate() {
+
+  const cash =
+    getNumber('cash');
+
+  const bank =
+    getNumber('bank');
+
+  const discount =
+    getNumber('discount');
+
+  const payment =
+    cash + bank;
+
+  const adjustment =
+    payment + discount;
+
+
+  document.getElementById(
+    'totalPayment'
+  ).innerText =
+    '₹' + payment.toLocaleString('en-IN');
+
+
+  document.getElementById(
+    'totalDiscount'
+  ).innerText =
+    '₹' + discount.toLocaleString('en-IN');
+
+
+  document.getElementById(
+    'totalAdjustment'
+  ).innerText =
+    '₹' + adjustment.toLocaleString('en-IN');
+}
+
+
+function saveReceipt() {
+
+  const cash =
+    getNumber('cash');
+
+  const bank =
+    getNumber('bank');
+
+  const discount =
+    getNumber('discount');
+
+
+  // Validation
+  if (
+    cash === 0 &&
+    bank === 0 &&
+    discount === 0
+  ) {
+
+    showError(
+      'Please enter Cash, Bank, or Discount.'
+    );
+
+    return;
+  }
+
+
+  const date =
+    document.getElementById(
+      'date'
+    ).value;
+
+
+  if (!date) {
+
+    showError(
+      'Please select receipt date.'
+    );
+
+    return;
+  }
+
+
+  const receiptNo =
+    document.getElementById(
+      'receiptNo'
+    ).value.trim();
+
+
+  const remarks =
+    document.getElementById(
+      'remarks'
+    ).value.trim();
+
+
+  const data = {
+
+    row: <?= row ?>,
+
+    sheetName:
+      '<?= SpreadsheetApp.getActiveSheet().getName() ?>',
+
+    invoice:
+      '<?= invoice ?>',
+
+    customer:
+      '<?= customer ?>',
+
+    date:
+      date,
+
+    cash:
+      cash,
+
+    bank:
+      bank,
+
+    discount:
+      discount,
+
+    receiptNo:
+      receiptNo,
+
+    remarks:
+      remarks
+  };
+
+
+  document.getElementById(
+    'saveButton'
+  ).disabled = true;
+
+
+  document.getElementById(
+    'loading'
+  ).style.display = 'block';
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      function(result) {
+
+        google.script.host.close();
+
+      }
+    )
+
+    .withFailureHandler(
+      function(error) {
+
+        document.getElementById(
+          'saveButton'
+        ).disabled = false;
+
+        document.getElementById(
+          'loading'
+        ).style.display = 'none';
+
+        showError(
+          error.message
+        );
+
+      }
+    )
+
+    .saveReceipt(data);
+
+}
+
+
+function showError(message) {
+
+  const error =
+    document.getElementById(
+      'error'
+    );
+
+  error.innerText =
+    message;
+
+  error.style.display =
+    'block';
+}
+
+
+</script>
+
+<script>
+
+document.addEventListener(
+  'keydown',
+  function(event) {
+
+    // Ctrl + Enter = Save Receipt
+    if (
+      event.ctrlKey &&
+      event.key === 'Enter'
+    ) {
+
+      event.preventDefault();
+
+      saveReceipt();
+    }
+
+  }
+);
+
+</script>
+
+</body>
+
+</html>
